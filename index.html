@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cardápio de Verão — Holy Cookie</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #faf6f0; color: #33241a; line-height: 1.55; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 80px; }
+  header { text-align: center; padding: 36px 16px 22px; }
+  header h1 { font-size: 2.4rem; color: #6b3f1d; letter-spacing: 1px; }
+  header .sub { font-size: 1.05rem; margin-top: 6px; }
+  header .sub2 { color: #b8862d; font-size: .9rem; margin-top: 2px; }
+
+  .box { background: #fff; border: 1px solid #e8dccc; border-radius: 14px; padding: 22px 26px; margin: 18px 0; box-shadow: 0 1px 4px rgba(107,63,29,.06); }
+  .box h2 { color: #6b3f1d; font-size: 1.25rem; margin-bottom: 10px; }
+  .box p { margin: 8px 0; }
+  .lead { font-weight: 700; font-size: 1.05rem; }
+  .destaque { background: #6b3f1d; color: #fff; border-radius: 10px; padding: 14px 18px; font-weight: 600; margin-top: 12px; }
+  .box.ouro { border: 2px solid #b8862d; background: #fdf8ee; }
+
+  nav.toc { position: sticky; top: 0; z-index: 20; background: #faf6f0; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 10px 0; margin: 8px 0 4px; border-bottom: 2px solid #e8dccc; }
+  .vtab { font-weight: 700; font-size: .98rem; padding: 10px 20px; border-radius: 999px; background: #fff; border: 2px solid #e8dccc; color: #6b3f1d; cursor: pointer; }
+  .vtab.active { background: #6b3f1d; border-color: #6b3f1d; color: #fff; }
+  .vtab .tcount { font-size: .78rem; opacity: .75; margin-left: 4px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .secmain { font-size: 1.6rem; color: #6b3f1d; margin: 36px 0 4px; text-align: center; }
+  .secsub { text-align: center; color: #8a6d55; font-size: .92rem; margin-bottom: 10px; }
+
+  .filtro { border: 2px solid #b8862d; border-radius: 14px; background: #fff; padding: 18px 22px; margin: 14px 0; }
+  .filtro .fnum { display: inline-block; background: #b8862d; color: #fff; font-weight: 800; border-radius: 999px; padding: 2px 14px; font-size: .82rem; margin-bottom: 8px; }
+  .filtro h3 { color: #6b3f1d; font-size: 1.15rem; margin-bottom: 6px; }
+  .perg { background: #fdf3e0; border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-size: .88rem; }
+  .perg b { color: #6b3f1d; }
+  .perg ul { margin: 6px 0 0 18px; }
+  .perg li { margin: 3px 0; }
+
+  ul.lista { margin: 8px 0 0 20px; }
+  ul.lista li { margin: 6px 0; }
+
+  .passos { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 12px; }
+  .passo { background: #f5ebdf; border-radius: 12px; padding: 14px 16px; font-size: .9rem; }
+  .passo .pn { font-weight: 800; color: #b8862d; font-size: 1.4rem; display: block; }
+
+  /* ---------- formulário ---------- */
+  form.envio { display: grid; gap: 14px; }
+  .campo label { display: block; font-weight: 700; color: #6b3f1d; font-size: .9rem; margin-bottom: 4px; }
+  .campo .dica { font-weight: 400; color: #8a6d55; font-size: .8rem; }
+  .campo input[type=text], .campo input[type=url], .campo select, .campo textarea {
+    width: 100%; border: 1px solid #e8dccc; border-radius: 10px; padding: 11px 13px;
+    font-family: inherit; font-size: .95rem; background: #fffdfa; color: #33241a; }
+  .campo textarea { min-height: 78px; resize: vertical; }
+  .campo input:focus, .campo select:focus, .campo textarea:focus { outline: 2px solid #b8862d; border-color: #b8862d; }
+  .dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .btn { border: 0; border-radius: 999px; font-weight: 700; font-size: .95rem; padding: 13px 30px; cursor: pointer; background: #b8862d; color: #fff; font-family: inherit; }
+  .btn:hover:not(:disabled) { background: #6b3f1d; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn.sec { background: #fff; color: #6b3f1d; border: 2px solid #e8dccc; }
+  .btn.sec:hover { background: #f5ebdf; color: #6b3f1d; }
+
+  .previa { display: none; gap: 12px; align-items: center; background: #f0f7f1; border: 1px solid #cfe3d2; border-radius: 12px; padding: 12px; }
+  .previa.on { display: flex; }
+  .previa img { width: 78px; height: 98px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+  .previa .ptxt { font-size: .84rem; }
+  .previa .ptxt b { color: #2e7d32; }
+
+  .aviso { border-radius: 10px; padding: 11px 15px; font-size: .88rem; font-weight: 600; display: none; }
+  .aviso.on { display: block; }
+  .aviso.erro { background: #fdecea; border: 1px solid #f5c6c0; color: #a8322a; }
+  .aviso.ok { background: #f0f7f1; border: 1px solid #cfe3d2; color: #2e7d32; }
+  .aviso.carregando { background: #fdf3e0; border: 1px solid #e8d4a8; color: #8a6212; }
+
+  /* ---------- galeria ---------- */
+  .barra { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0 18px; }
+  .fbtn { border: 1px solid #e8dccc; background: #fff; color: #6b3f1d; padding: 7px 15px; border-radius: 999px; cursor: pointer; font-size: .85rem; font-family: inherit; }
+  .fbtn.active { background: #6b3f1d; color: #fff; border-color: #6b3f1d; }
+  .barra .sep { flex: 1; }
+  .quem { font-size: .82rem; color: #8a6d55; }
+  .quem b { color: #6b3f1d; }
+  .quem button { background: none; border: 0; color: #b8862d; font-weight: 700; cursor: pointer; font-size: .82rem; font-family: inherit; text-decoration: underline; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 18px; }
+  .card { background: #fff; border: 1px solid #e8dccc; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 4px rgba(107,63,29,.06); }
+  .card.votado { outline: 3px solid #2e7d32; outline-offset: -1px; }
+  .card .capa { position: relative; background: #f5ebdf; aspect-ratio: 4 / 5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .card .capa img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; display: block; }
+  .card .capa .semfoto { text-align: center; color: #a8907a; font-size: .84rem; padding: 20px; }
+  .card .capa iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+  .card .votobolha { position: absolute; top: 10px; right: 10px; background: rgba(46,125,50,.94); color: #fff; font-weight: 800; font-size: .8rem; padding: 4px 11px; border-radius: 999px; }
+  .card .rank { position: absolute; top: 10px; left: 10px; background: rgba(107,63,29,.92); color: #fff; font-weight: 800; font-size: .8rem; padding: 4px 11px; border-radius: 999px; }
+  .cardbody { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .cardbody .nome { font-weight: 800; font-size: 1.02rem; color: #33241a; line-height: 1.3; }
+  .cardbody .meta { font-size: .78rem; color: #8a6d55; }
+  .cardbody .meta a { color: #1155cc; font-weight: 700; text-decoration: none; }
+  .cardbody .desc { background: #fdf3e0; border-radius: 8px; padding: 8px 10px; font-size: .84rem; }
+  .cardbody .acoes { margin-top: auto; display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; }
+  .abtn { flex: 1; min-width: 108px; border: 1px solid #e8dccc; background: #fff; color: #6b3f1d; border-radius: 999px; padding: 9px 10px; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; }
+  .abtn:hover { background: #f5ebdf; }
+  .abtn.voto { background: #f0f7f1; border-color: #cfe3d2; color: #2e7d32; }
+  .abtn.voto.on { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+  .abtn.mini { flex: 0 0 auto; min-width: 0; padding: 9px 13px; }
+  .votantes { font-size: .74rem; color: #8a6d55; }
+
+  .vazio { text-align: center; color: #a8907a; padding: 50px 20px; font-size: .95rem; }
+  .vazio .big { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+
+  /* ---------- lightbox ---------- */
+  .lb { display: none; position: fixed; inset: 0; z-index: 60; background: rgba(40,25,15,.9); align-items: center; justify-content: center; padding: 24px; }
+  .lb.on { display: flex; }
+  .lb img { max-width: 100%; max-height: 100%; border-radius: 12px; }
+  .lb .fechar { position: absolute; top: 16px; right: 22px; color: #fff; font-size: 2.2rem; cursor: pointer; line-height: 1; background: none; border: 0; }
+
+  footer { text-align: center; margin-top: 50px; font-size: .82rem; color: #8a6d55; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } .dupla { grid-template-columns: 1fr; } header h1 { font-size: 1.9rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>🍦 CARDÁPIO DE VERÃO</h1>
+  <div class="sub"><b>Holy Cookie — construção coletiva do cardápio</b></div>
+  <div class="sub2">Cada colaborador manda o que viu por aí · o time vota · a gente testa os mais votados</div>
+</header>
+
+<nav class="toc">
+  <button class="vtab active" data-view="view-brief">📋 O brief</button>
+  <button class="vtab" data-view="view-enviar">➕ Enviar sugestão</button>
+  <button class="vtab" data-view="view-sugestoes">🍧 Sugestões <span class="tcount" id="c-sug"></span></button>
+  <button class="vtab" data-view="view-ranking">🏆 Selecionados <span class="tcount" id="c-rank"></span></button>
+</nav>
+
+<!-- ===================== BRIEF ===================== -->
+<section class="view active" id="view-brief">
+
+  <div class="box">
+    <h2>1. O objetivo</h2>
+    <p class="lead">Aumentar as vendas no verão.</p>
+    <p>No calor, a vontade de cookie quente cai. O cardápio de verão existe para dar um <b>motivo novo</b> para a pessoa entrar na Holy Cookie no auge do calor — sem trocar o que a gente já é.</p>
+    <p>Não é criar uma marca nova nem virar sorveteria. É colocar um punhado de produtos de verão <b>ao lado</b> do que já vende.</p>
+    <div class="destaque">A pergunta que o produto tem que responder: “por que eu entraria na Holy Cookie hoje, com 35 graus lá fora?”</div>
+  </div>
+
+  <h2 class="secmain">2. Os dois filtros que decidem tudo</h2>
+  <p class="secsub">Um produto que passa em só um dos dois <b>não entra</b>. Tem que passar nos dois.</p>
+
+  <div class="filtro">
+    <span class="fnum">FILTRO 1</span>
+    <h3>👀 Desejo pelos olhos — tem que ser fofo</h3>
+    <p>A pessoa vê e <b>já quer</b>. Antes de saber o preço, antes de saber o sabor. O produto vende sozinho na imagem.</p>
+    <p>Se ele não faz alguém parar o dedo no feed, ele não entra — por melhor que seja o gosto.</p>
+    <div class="perg">
+      <b>Como testar:</b>
+      <ul>
+        <li>Dá para entender o que é numa <b>foto só</b>, sem explicação?</li>
+        <li>Dá vontade de filmar?</li>
+        <li>Um cliente postaria isso no story <b>sem a gente pedir</b>?</li>
+        <li>Tem um formato, uma cor ou um jeito de montar que ninguém na cidade tem?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="filtro">
+    <span class="fnum">FILTRO 2</span>
+    <h3>🧑‍🍳 Simples de fazer na loja</h3>
+    <p>Nosso atendente <b>não é chef de cozinha</b> — e não precisa ser. Então o produto tem que ser <b>montagem</b>, não receita.</p>
+    <p>Se depende de ponto de calda, tempero de massa ou mão treinada, ele sai igual em uma loja e diferente na outra. E aí morre.</p>
+    <div class="perg">
+      <b>Como testar:</b>
+      <ul>
+        <li>Dá para ensinar um atendente novo em <b>10 minutos</b>?</li>
+        <li>Monta em <b>até 2 minutos</b>, na frente do cliente?</li>
+        <li>Sai <b>igual</b> em todas as lojas, em qualquer turno?</li>
+        <li>É juntar peças prontas — ou é cozinhar?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>3. O que também pesa (critério de desempate)</h2>
+    <p>Passou nos dois filtros? Então isso aqui decide quem entra primeiro:</p>
+    <ul class="lista">
+      <li><b>Aproveita o que a loja já tem.</b> Cookie, massa, sorvete, cobertura. Quanto menos insumo novo, melhor — cada SKU novo é compra, estoque e perda.</li>
+      <li><b>Aguenta o balcão e o delivery.</b> Se derrete em 5 minutos na vitrine ou chega destruído na casa do cliente, não adianta ser lindo.</li>
+      <li><b>Fecha a conta.</b> Dá para vender com margem no preço que o cliente aceita pagar.</li>
+      <li><b>Rende conteúdo.</b> Vira vídeo e foto pro nosso banco — o produto trabalha duas vezes.</li>
+    </ul>
+  </div>
+
+  <div class="box ouro">
+    <h2>4. Como participar</h2>
+    <div class="passos">
+      <div class="passo"><span class="pn">1</span> Viu um produto que te fez parar o dedo? Copia o <b>link do reel</b> no Instagram.</div>
+      <div class="passo"><span class="pn">2</span> Cola na aba <b>Enviar sugestão</b>. A capa do vídeo vem sozinha, você não precisa fazer nada.</div>
+      <div class="passo"><span class="pn">3</span> Se a capa não mostra bem o produto, <b>sobe uma foto</b>. É pela foto que o time vai decidir.</div>
+      <div class="passo"><span class="pn">4</span> Depois entra em <b>Sugestões</b> e vota nos que você quer ver na loja. Os mais votados a gente testa.</div>
+    </div>
+    <p style="margin-top:14px"><b>Pode mandar quantas quiser.</b> Não precisa ser uma ideia original — na verdade é melhor que já exista e esteja funcionando pra alguém.</p>
+  </div>
+
+  <div class="box">
+    <h2>5. Por que vídeo <i>e</i> foto</h2>
+    <p>O vídeo mostra o <b>processo</b> — serve pra gente entender como se faz e se dá pra executar na loja (Filtro 2).</p>
+    <p>A foto mostra o <b>produto pronto</b> — serve pra bater o olho e saber na hora o que é aquilo, e se dá desejo (Filtro 1).</p>
+    <p>Por isso a galeria abre com a foto grande e o vídeo fica a um clique de distância. Quem for decidir precisa comparar 30 produtos rápido, não assistir 30 vídeos.</p>
+  </div>
+
+</section>
+
+<!-- ===================== ENVIAR ===================== -->
+<section class="view" id="view-enviar">
+  <h2 class="secmain">➕ Enviar uma sugestão</h2>
+  <p class="secsub">Link do Instagram, foto, ou os dois. Leva menos de um minuto.</p>
+
+  <div class="box">
+    <form class="envio" id="form-envio" autocomplete="off">
+      <div class="dupla">
+        <div class="campo">
+          <label for="f-autor">Seu nome *</label>
+          <input type="text" id="f-autor" required placeholder="Ex.: Fred">
+        </div>
+        <div class="campo">
+          <label for="f-loja">Sua loja</label>
+          <select id="f-loja">
+            <option value="">— selecione —</option>
+            <option>Campinas</option>
+            <option>Cambuí</option>
+            <option>Piracicaba</option>
+            <option>Paulínia</option>
+            <option>Escritório / Outra</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="f-produto">Nome do produto *</label>
+        <input type="text" id="f-produto" required placeholder="Ex.: Cookie Taco de sorvete">
+      </div>
+
+      <div class="campo">
+        <label for="f-video">Link do vídeo no Instagram
+          <span class="dica">— cole e a capa aparece sozinha</span></label>
+        <input type="url" id="f-video" placeholder="https://www.instagram.com/reel/...">
+      </div>
+
+      <div class="previa" id="previa">
+        <img id="previa-img" alt="capa do vídeo">
+        <div class="ptxt" id="previa-txt"></div>
+      </div>
+
+      <div class="campo">
+        <label for="f-foto">Foto do produto
+          <span class="dica">— opcional. Só se a capa do vídeo não mostrar bem o produto pronto</span></label>
+        <input type="file" id="f-foto" accept="image/*">
+      </div>
+
+      <div class="campo">
+        <label for="f-desc">Por que você acha que vende?
+          <span class="dica">— opcional, mas ajuda muito na hora de decidir</span></label>
+        <textarea id="f-desc" placeholder="Ex.: é fácil de montar, usa o cookie que já temos e o formato chama atenção de longe"></textarea>
+      </div>
+
+      <div class="aviso" id="msg-envio"></div>
+
+      <div>
+        <button type="submit" class="btn" id="btn-enviar">Enviar sugestão</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ===================== SUGESTÕES ===================== -->
+<section class="view" id="view-sugestoes">
+  <h2 class="secmain">🍧 Todas as sugestões</h2>
+  <p class="secsub">Bata o olho na foto. Clique em <b>ver o vídeo</b> só nos que te interessarem.</p>
+
+  <div class="barra">
+    <button class="fbtn active" data-filtro="todas">Todas</button>
+    <button class="fbtn" data-filtro="votadas">Que eu votei</button>
+    <button class="fbtn" data-filtro="minhas">Que eu enviei</button>
+    <button class="fbtn" data-filtro="semvoto">Sem voto ainda</button>
+    <span class="sep"></span>
+    <button class="fbtn" data-ordem="recentes" id="ord-btn">↕ Mais recentes</button>
+  </div>
+  <div class="barra">
+    <span class="quem" id="quem"></span>
+  </div>
+
+  <div class="grid" id="grid-sug"></div>
+  <div class="vazio" id="vazio-sug" style="display:none">
+    <span class="big">🍪</span>
+    Ainda não tem nenhuma sugestão aqui.<br>Seja o primeiro — vá em <b>Enviar sugestão</b>.
+  </div>
+</section>
+
+<!-- ===================== RANKING ===================== -->
+<section class="view" id="view-ranking">
+  <h2 class="secmain">🏆 Os selecionados</h2>
+  <p class="secsub">Tudo que recebeu pelo menos um voto, do mais votado para o menos.<br>É desta lista que sai o cardápio de verão.</p>
+
+  <div class="grid" id="grid-rank"></div>
+  <div class="vazio" id="vazio-rank" style="display:none">
+    <span class="big">🗳️</span>
+    Ninguém votou ainda.<br>Vá em <b>Sugestões</b> e marque os que você quer ver na loja.
+  </div>
+</section>
+
+<footer>
+  Cardápio de Verão · Holy Cookie · as sugestões ficam salvas e todo mundo vê as mesmas
+</footer>
+</div>
+
+<div class="lb" id="lb"><button class="fechar" id="lb-x">×</button><img id="lb-img" alt=""></div>
+
+<script>
+const SB_URL  = "https://wjirwqgiuqjxxoriqddj.supabase.co";
+const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaXJ3cWdpdXFqeHhvcmlxZGRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1OTI1OTIsImV4cCI6MjEwMTE2ODU5Mn0.MnOlJ6_2rJzFY55gJKYmIxXagg4HAdUQfbVdjMbwlhs";
+const H = { apikey: SB_ANON, Authorization: "Bearer " + SB_ANON, "Content-Type": "application/json" };
+
+/* ---------- identidade local ---------- */
+const LS = {
+  get id() {
+    let v = localStorage.getItem("cv_id");
+    if (!v) { v = "v_" + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("cv_id", v); }
+    return v;
+  },
+  get nome() { return localStorage.getItem("cv_nome") || ""; },
+  set nome(v) { localStorage.setItem("cv_nome", v); },
+  get loja() { return localStorage.getItem("cv_loja") || ""; },
+  set loja(v) { localStorage.setItem("cv_loja", v); },
+};
+
+let SUGESTOES = [], VOTOS = [], filtro = "todas", ordem = "recentes";
+
+/* ---------- helpers ---------- */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+function shortcode(url) {
+  const m = String(url || "").match(/instagram\.com\/(?:[\w.]+\/)?(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+function msg(el, texto, tipo) {
+  el.className = "aviso on " + tipo;
+  el.textContent = texto;
+}
+function limparMsg(el) { el.className = "aviso"; }
+
+async function api(path, opts = {}) {
+  const r = await fetch(SB_URL + path, { ...opts, headers: { ...H, ...(opts.headers || {}) } });
+  if (!r.ok) throw new Error(await r.text());
+  return r.status === 204 ? null : r.json();
+}
+
+/* ---------- navegação ---------- */
+$$(".vtab").forEach(b => b.onclick = () => {
+  $$(".vtab").forEach(x => x.classList.remove("active"));
+  $$(".view").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  $("#" + b.dataset.view).classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ---------- lightbox ---------- */
+function abrirFoto(src) { $("#lb-img").src = src; $("#lb").classList.add("on"); }
+$("#lb").onclick = e => { if (e.target.id !== "lb-img") $("#lb").classList.remove("on"); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("#lb").classList.remove("on"); });
+
+/* ---------- carregar ---------- */
+async function carregar() {
+  const [s, v] = await Promise.all([
+    api("/rest/v1/sugestoes?select=*&arquivado=eq.false&order=criado_em.desc"),
+    api("/rest/v1/votos?select=*"),
+  ]);
+  SUGESTOES = s; VOTOS = v;
+  render();
+}
+
+const votosDe   = id => VOTOS.filter(v => v.sugestao_id === id);
+const euVotei   = id => votosDe(id).some(v => v.votante === LS.id);
+
+function render() {
+  $("#c-sug").textContent = SUGESTOES.length ? "(" + SUGESTOES.length + ")" : "";
+  const comVoto = SUGESTOES.filter(s => votosDe(s.id).length > 0);
+  $("#c-rank").textContent = comVoto.length ? "(" + comVoto.length + ")" : "";
+
+  $("#quem").innerHTML = LS.nome
+    ? "Votando como <b>" + esc(LS.nome) + "</b>" + (LS.loja ? " · " + esc(LS.loja) : "") +
+      ' <button onclick="trocarNome()">trocar</button>'
+    : '<button onclick="trocarNome()">Diga seu nome para poder votar</button>';
+
+  /* --- galeria --- */
+  let lista = SUGESTOES.slice();
+  if (filtro === "votadas") lista = lista.filter(s => euVotei(s.id));
+  if (filtro === "minhas")  lista = lista.filter(s => s.autor === LS.nome);
+  if (filtro === "semvoto") lista = lista.filter(s => votosDe(s.id).length === 0);
+  if (ordem === "votados")  lista.sort((a, b) => votosDe(b.id).length - votosDe(a.id).length);
+
+  $("#grid-sug").innerHTML = lista.map(s => card(s)).join("");
+  $("#vazio-sug").style.display = lista.length ? "none" : "block";
+  $("#grid-sug").style.display  = lista.length ? "grid" : "none";
+
+  /* --- ranking --- */
+  const rank = comVoto.sort((a, b) => votosDe(b.id).length - votosDe(a.id).length);
+  $("#grid-rank").innerHTML = rank.map((s, i) => card(s, i + 1)).join("");
+  $("#vazio-rank").style.display = rank.length ? "none" : "block";
+  $("#grid-rank").style.display  = rank.length ? "grid" : "none";
+}
+
+function card(s, posicao) {
+  const n = votosDe(s.id).length;
+  const meu = euVotei(s.id);
+  const code = shortcode(s.video_url);
+  const nomes = votosDe(s.id).map(v => v.votante_nome).filter(Boolean);
+  const medalha = posicao === 1 ? "🥇" : posicao === 2 ? "🥈" : posicao === 3 ? "🥉" : posicao ? "#" + posicao : "";
+
+  const capa = s.foto_url
+    ? '<img src="' + esc(s.foto_url) + '" alt="' + esc(s.produto) + '" loading="lazy" onclick="abrirFoto(this.src)">'
+    : '<div class="semfoto">📷<br>sem foto do produto<br><b>ainda</b></div>';
+
+  return '<div class="card' + (meu ? " votado" : "") + '" id="card-' + s.id + '">' +
+    '<div class="capa" id="capa-' + s.id + '">' +
+      (posicao ? '<span class="rank">' + medalha + "</span>" : "") +
+      (n ? '<span class="votobolha">' + n + (n === 1 ? " voto" : " votos") + "</span>" : "") +
+      capa +
+    "</div>" +
+    '<div class="cardbody">' +
+      '<div class="nome">' + esc(s.produto) + "</div>" +
+      '<div class="meta">enviado por <b>' + esc(s.autor) + "</b>" + (s.loja ? " · " + esc(s.loja) : "") +
+        (s.ig_autor ? ' · <a href="https://www.instagram.com/' + esc(s.ig_autor) + '/" target="_blank" rel="noopener">@' + esc(s.ig_autor) + "</a>" : "") +
+      "</div>" +
+      (s.descricao ? '<div class="desc">' + esc(s.descricao) + "</div>" : "") +
+      (nomes.length ? '<div class="votantes">👍 ' + esc(nomes.join(", ")) + "</div>" : "") +
+      '<div class="acoes">' +
+        (code ? '<button class="abtn" onclick="verVideo(\'' + s.id + "','" + code + '\')">▶ ver o vídeo</button>' : "") +
+        '<button class="abtn voto' + (meu ? " on" : "") + '" onclick="votar(\'' + s.id + '\')">' +
+          (meu ? "✅ Quero esse" : "Quero esse") + "</button>" +
+        '<button class="abtn mini" title="trocar a foto do produto" onclick="trocarFoto(\'' + s.id + '\')">📷</button>' +
+      "</div>" +
+    "</div></div>";
+}
+
+/* ---------- vídeo sob demanda ---------- */
+function verVideo(id, code) {
+  const el = document.getElementById("capa-" + id);
+  el.innerHTML = '<iframe src="https://www.instagram.com/reel/' + code +
+    '/embed/" allowtransparency="true" allowfullscreen></iframe>';
+}
+
+/* ---------- votar ---------- */
+async function votar(id) {
+  if (!LS.nome && !trocarNome()) return;
+  const meu = euVotei(id);
+  try {
+    if (meu) {
+      await fetch(SB_URL + "/rest/v1/votos?sugestao_id=eq." + id + "&votante=eq." + encodeURIComponent(LS.id),
+        { method: "DELETE", headers: H });
+      VOTOS = VOTOS.filter(v => !(v.sugestao_id === id && v.votante === LS.id));
+    } else {
+      const [novo] = await api("/rest/v1/votos", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({ sugestao_id: id, votante: LS.id, votante_nome: LS.nome }),
+      });
+      VOTOS.push(novo);
+    }
+    render();
+  } catch (e) { alert("Não deu para registrar o voto. Tente de novo.\n\n" + e.message); }
+}
+
+function trocarNome() {
+  const n = prompt("Como você se chama? (aparece do lado dos seus votos)", LS.nome);
+  if (!n || !n.trim()) return false;
+  LS.nome = n.trim();
+  $("#f-autor").value = LS.nome;
+  render();
+  return true;
+}
+
+/* ---------- upload de foto ---------- */
+async function subirFoto(file) {
+  const ext  = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = "envios/" + Date.now() + "_" + Math.random().toString(36).slice(2) + "." + ext;
+  const r = await fetch(SB_URL + "/storage/v1/object/fotos/" + path, {
+    method: "POST",
+    headers: { apikey: SB_ANON, Authorization: "Bearer " + SB_ANON, "Content-Type": file.type || "image/jpeg" },
+    body: file,
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return SB_URL + "/storage/v1/object/public/fotos/" + path;
+}
+
+function trocarFoto(id) {
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "image/*";
+  inp.onchange = async () => {
+    if (!inp.files[0]) return;
+    const card = document.getElementById("card-" + id);
+    card.style.opacity = ".5";
+    try {
+      const url = await subirFoto(inp.files[0]);
+      await fetch(SB_URL + "/rest/v1/sugestoes?id=eq." + id,
+        { method: "PATCH", headers: H, body: JSON.stringify({ foto_url: url }) });
+      const s = SUGESTOES.find(x => x.id === id);
+      if (s) s.foto_url = url;
+      render();
+    } catch (e) { alert("Não deu para subir a foto.\n\n" + e.message); card.style.opacity = "1"; }
+  };
+  inp.click();
+}
+
+/* ---------- prévia da capa do Instagram ---------- */
+let capaCache = null;
+let capaTimer = null;
+
+$("#f-video").addEventListener("input", () => {
+  clearTimeout(capaTimer);
+  const url = $("#f-video").value.trim();
+  capaCache = null;
+  $("#previa").classList.remove("on");
+  if (!shortcode(url)) return;
+  capaTimer = setTimeout(() => buscarCapa(url), 500);
+});
+
+async function buscarCapa(url) {
+  const p = $("#previa"), img = $("#previa-img"), txt = $("#previa-txt");
+  txt.innerHTML = "<b>buscando a capa no Instagram…</b>";
+  img.removeAttribute("src");
+  p.classList.add("on");
+  try {
+    const r = await fetch(SB_URL + "/functions/v1/capa", {
+      method: "POST", headers: H, body: JSON.stringify({ url }),
+    });
+    const d = await r.json();
+    if (d.erro || !d.foto_url) {
+      txt.innerHTML = "<b>Não consegui puxar a capa desse link.</b><br>Sem problema — suba uma foto do produto abaixo.";
+      return;
+    }
+    capaCache = d;
+    img.src = d.foto_url;
+    txt.innerHTML = "<b>Capa encontrada</b><br>de @" + esc(d.ig_autor || "?") +
+      "<br><span style='color:#8a6d55'>se ela não mostra bem o produto pronto, suba uma foto abaixo</span>";
+    if (!$("#f-produto").value.trim() && d.titulo) {
+      $("#f-produto").value = d.titulo.split("\n")[0].slice(0, 60);
+    }
+  } catch (e) {
+    txt.innerHTML = "<b>Não consegui puxar a capa desse link.</b><br>Sem problema — suba uma foto do produto abaixo.";
+  }
+}
+
+/* ---------- envio ---------- */
+$("#form-envio").addEventListener("submit", async e => {
+  e.preventDefault();
+  const el = $("#msg-envio"), btn = $("#btn-enviar");
+  const autor   = $("#f-autor").value.trim();
+  const loja    = $("#f-loja").value;
+  const produto = $("#f-produto").value.trim();
+  const video   = $("#f-video").value.trim();
+  const desc    = $("#f-desc").value.trim();
+  const file    = $("#f-foto").files[0];
+
+  if (!autor || !produto) { msg(el, "Preencha seu nome e o nome do produto.", "erro"); return; }
+  if (!video && !file)    { msg(el, "Mande pelo menos uma coisa: o link do vídeo ou uma foto do produto.", "erro"); return; }
+  if (video && !shortcode(video) && !file) {
+    msg(el, "Esse link não parece ser de um post ou reel do Instagram. Confira, ou suba uma foto.", "erro"); return;
+  }
+
+  btn.disabled = true;
+  msg(el, "Enviando…", "carregando");
+  try {
+    let foto = capaCache && capaCache.foto_url ? capaCache.foto_url : null;
+    let igAutor = capaCache ? capaCache.ig_autor : null;
+
+    // Link colado e ainda não processado (ex.: colou e enviou rápido demais).
+    if (video && !capaCache && shortcode(video)) {
+      msg(el, "Buscando a capa do vídeo…", "carregando");
+      try {
+        const r = await fetch(SB_URL + "/functions/v1/capa", { method: "POST", headers: H, body: JSON.stringify({ url: video }) });
+        const d = await r.json();
+        if (d.foto_url) { foto = d.foto_url; igAutor = d.ig_autor; }
+      } catch (_) { /* segue sem capa */ }
+    }
+
+    // Foto enviada à mão sempre ganha da capa automática.
+    if (file) {
+      msg(el, "Subindo a foto…", "carregando");
+      foto = await subirFoto(file);
+    }
+
+    LS.nome = autor; LS.loja = loja;
+    await api("/rest/v1/sugestoes", {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({ autor, loja: loja || null, produto, descricao: desc || null,
+                             video_url: video || null, foto_url: foto, ig_autor: igAutor }),
+    });
+
+    $("#form-envio").reset();
+    $("#f-autor").value = LS.nome; $("#f-loja").value = LS.loja;
+    $("#previa").classList.remove("on"); capaCache = null;
+    limparMsg(el);
+    await carregar();
+    $$(".vtab").forEach(x => x.classList.remove("active"));
+    $$(".view").forEach(x => x.classList.remove("active"));
+    document.querySelector('[data-view="view-sugestoes"]').classList.add("active");
+    $("#view-sugestoes").classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    msg(el, "Não deu para enviar: " + err.message, "erro");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+/* ---------- filtros ---------- */
+$$("[data-filtro]").forEach(b => b.onclick = () => {
+  $$("[data-filtro]").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  filtro = b.dataset.filtro;
+  render();
+});
+$("#ord-btn").onclick = () => {
+  ordem = ordem === "recentes" ? "votados" : "recentes";
+  $("#ord-btn").textContent = ordem === "recentes" ? "↕ Mais recentes" : "↕ Mais votados";
+  render();
+};
+
+/* ---------- boot ---------- */
+$("#f-autor").value = LS.nome;
+$("#f-loja").value  = LS.loja;
+carregar().catch(e => {
+  $("#grid-sug").innerHTML = '<div class="vazio">Não consegui carregar as sugestões.<br>Confira sua internet e recarregue a página.</div>';
+  console.error(e);
+});
+</script>
+</body>
+</html>
