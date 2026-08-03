@@ -67,6 +67,26 @@
   .previa .ptxt { font-size: .84rem; }
   .previa .ptxt b { color: #2e7d32; }
 
+  details.opcionais { border: 1px dashed #e0d0b8; border-radius: 12px; background: #fffdfa; }
+  details.opcionais summary { cursor: pointer; padding: 12px 16px; font-size: .88rem; font-weight: 700; color: #8a6d55; }
+  details.opcionais summary:hover { color: #6b3f1d; }
+  details.opcionais[open] summary { border-bottom: 1px dashed #e0d0b8; margin-bottom: 14px; }
+  details.opcionais .campo { padding: 0 16px 14px; }
+
+  .cta { text-align: center; margin: 20px 0 4px; }
+  .btn.grande { font-size: 1.05rem; padding: 15px 38px; box-shadow: 0 3px 12px rgba(184,134,45,.3); }
+
+  .modal { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(40,25,15,.62); padding: 20px; overflow-y: auto; }
+  .modal.on { display: block; }
+  .modalcx { background: #fff; border-radius: 16px; max-width: 620px; margin: 40px auto; padding: 24px 26px 26px; box-shadow: 0 12px 40px rgba(40,25,15,.35); }
+  .modalcab { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+  .modalcab h2 { color: #6b3f1d; font-size: 1.35rem; }
+  .modalcab p { color: #8a6d55; font-size: .88rem; margin-top: 2px; }
+  .modalx { margin-left: auto; background: none; border: 0; font-size: 2rem; line-height: 1; color: #b3a08c; cursor: pointer; padding: 0 4px; }
+  .modalx:hover { color: #6b3f1d; }
+  .modalpe { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  @media (max-width: 560px) { .modalcx { margin: 10px auto; padding: 20px 18px 22px; } .modalpe .btn { flex: 1; } }
+
   .aviso { border-radius: 10px; padding: 11px 15px; font-size: .88rem; font-weight: 600; display: none; }
   .aviso.on { display: block; }
   .aviso.erro { background: #fdecea; border: 1px solid #f5c6c0; color: #a8322a; }
@@ -128,7 +148,6 @@
 
 <nav class="toc">
   <button class="vtab active" data-view="view-brief">📋 O brief</button>
-  <button class="vtab" data-view="view-enviar">➕ Enviar sugestão</button>
   <button class="vtab" data-view="view-sugestoes">🍧 Sugestões <span class="tcount" id="c-sug"></span></button>
   <button class="vtab" data-view="view-ranking">🏆 Selecionados <span class="tcount" id="c-rank"></span></button>
 </nav>
@@ -195,11 +214,12 @@
     <h2>4. Como participar</h2>
     <div class="passos">
       <div class="passo"><span class="pn">1</span> Viu um produto que te fez parar o dedo? Copia o <b>link do reel</b> no Instagram.</div>
-      <div class="passo"><span class="pn">2</span> Cola na aba <b>Enviar sugestão</b>. A capa do vídeo vem sozinha, você não precisa fazer nada.</div>
+      <div class="passo"><span class="pn">2</span> Clica no botão aqui embaixo e <b>cola o link</b>. A capa do vídeo vem sozinha, você não precisa fazer nada.</div>
       <div class="passo"><span class="pn">3</span> Se a capa não mostra bem o produto, <b>sobe uma foto</b>. É pela foto que o time vai decidir.</div>
       <div class="passo"><span class="pn">4</span> Depois entra em <b>Sugestões</b> e vota nos que você quer ver na loja. Os mais votados a gente testa.</div>
     </div>
     <p style="margin-top:14px"><b>Pode mandar quantas quiser.</b> Não precisa ser uma ideia original — na verdade é melhor que já exista e esteja funcionando pra alguém.</p>
+    <div class="cta"><button class="btn grande" onclick="abrirEnvio()">➕ Enviar minha sugestão</button></div>
   </div>
 
   <div class="box">
@@ -211,39 +231,21 @@
 
 </section>
 
-<!-- ===================== ENVIAR ===================== -->
-<section class="view" id="view-enviar">
-  <h2 class="secmain">➕ Enviar uma sugestão</h2>
-  <p class="secsub">Link do Instagram, foto, ou os dois. Leva menos de um minuto.</p>
+<!-- ===================== ENVIAR (popup) ===================== -->
+<div class="modal" id="modal-envio">
+  <div class="modalcx" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div class="modalcab">
+      <div>
+        <h2 id="modal-titulo">➕ Enviar uma sugestão</h2>
+        <p>Três campos e pronto. Leva menos de um minuto.</p>
+      </div>
+      <button class="modalx" onclick="fecharEnvio()" aria-label="fechar">×</button>
+    </div>
 
-  <div class="box">
     <form class="envio" id="form-envio" autocomplete="off">
-      <div class="dupla">
-        <div class="campo">
-          <label for="f-autor">Seu nome *</label>
-          <input type="text" id="f-autor" required placeholder="Ex.: Fred">
-        </div>
-        <div class="campo">
-          <label for="f-loja">Sua loja</label>
-          <select id="f-loja">
-            <option value="">— selecione —</option>
-            <option>Campinas</option>
-            <option>Cambuí</option>
-            <option>Piracicaba</option>
-            <option>Paulínia</option>
-            <option>Escritório / Outra</option>
-          </select>
-        </div>
-      </div>
-
       <div class="campo">
-        <label for="f-produto">Nome do produto *</label>
-        <input type="text" id="f-produto" required placeholder="Ex.: Cookie Taco de sorvete">
-      </div>
-
-      <div class="campo">
-        <label for="f-video">Link do vídeo no Instagram
-          <span class="dica">— cole e a capa aparece sozinha</span></label>
+        <label for="f-video">Cole o link do Instagram aqui
+          <span class="dica">— a capa do vídeo aparece sozinha</span></label>
         <input type="url" id="f-video" placeholder="https://www.instagram.com/reel/...">
       </div>
 
@@ -252,31 +254,48 @@
         <div class="ptxt" id="previa-txt"></div>
       </div>
 
-      <div class="campo">
-        <label for="f-foto">Foto do produto
-          <span class="dica">— opcional. Só se a capa do vídeo não mostrar bem o produto pronto</span></label>
-        <input type="file" id="f-foto" accept="image/*">
-      </div>
-
-      <div class="campo">
-        <label for="f-desc">Por que você acha que vende?
-          <span class="dica">— opcional, mas ajuda muito na hora de decidir</span></label>
-        <textarea id="f-desc" placeholder="Ex.: é fácil de montar, usa o cookie que já temos e o formato chama atenção de longe"></textarea>
+      <div class="dupla">
+        <div class="campo">
+          <label for="f-autor">Seu nome *</label>
+          <input type="text" id="f-autor" required placeholder="Ex.: Fred">
+        </div>
+        <div class="campo">
+          <label for="f-produto">Nome do produto *</label>
+          <input type="text" id="f-produto" required placeholder="Ex.: Cookie Taco de sorvete">
+        </div>
       </div>
 
       <div class="aviso" id="msg-envio"></div>
 
-      <div>
+      <details class="opcionais">
+        <summary>Quer caprichar? Tem mais duas coisas opcionais</summary>
+        <div class="campo">
+          <label for="f-desc">Por que você acha que vende?
+            <span class="dica">— ajuda muito na hora de decidir</span></label>
+          <textarea id="f-desc" placeholder="Ex.: é fácil de montar, usa o cookie que já temos e o formato chama atenção de longe"></textarea>
+        </div>
+
+        <div class="campo">
+          <label for="f-foto">Foto do produto
+            <span class="dica">— só se a capa do vídeo não mostrar bem o produto pronto</span></label>
+          <input type="file" id="f-foto" accept="image/*">
+        </div>
+      </details>
+
+      <div class="modalpe">
+        <button type="button" class="btn sec" onclick="fecharEnvio()">Cancelar</button>
         <button type="submit" class="btn" id="btn-enviar">Enviar sugestão</button>
       </div>
     </form>
   </div>
-</section>
+</div>
 
 <!-- ===================== SUGESTÕES ===================== -->
 <section class="view" id="view-sugestoes">
   <h2 class="secmain">🍧 Todas as sugestões</h2>
   <p class="secsub">Bata o olho na foto. Clique em <b>ver o vídeo</b> só nos que te interessarem.</p>
+
+  <div class="cta"><button class="btn grande" onclick="abrirEnvio()">➕ Enviar minha sugestão</button></div>
 
   <div class="barra">
     <button class="fbtn active" data-filtro="todas">Todas</button>
@@ -330,8 +349,6 @@ const LS = {
   },
   get nome() { return localStorage.getItem("cv_nome") || ""; },
   set nome(v) { localStorage.setItem("cv_nome", v); },
-  get loja() { return localStorage.getItem("cv_loja") || ""; },
-  set loja(v) { localStorage.setItem("cv_loja", v); },
 };
 
 let SUGESTOES = [], VOTOS = [], filtro = "todas", ordem = "lista";
@@ -358,18 +375,41 @@ async function api(path, opts = {}) {
 }
 
 /* ---------- navegação ---------- */
-$$(".vtab").forEach(b => b.onclick = () => {
-  $$(".vtab").forEach(x => x.classList.remove("active"));
-  $$(".view").forEach(x => x.classList.remove("active"));
-  b.classList.add("active");
-  $("#" + b.dataset.view).classList.add("active");
+function irPara(view) {
+  $$(".vtab").forEach(x => x.classList.toggle("active", x.dataset.view === view));
+  $$(".view").forEach(x => x.classList.toggle("active", x.id === view));
   window.scrollTo({ top: 0, behavior: "smooth" });
-});
+}
+$$(".vtab").forEach(b => b.onclick = () => irPara(b.dataset.view));
+
+/* ---------- popup de envio ---------- */
+function abrirEnvio() {
+  $("#f-autor").value = LS.nome;
+  limparMsg($("#msg-envio"));
+  $("#modal-envio").classList.add("on");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => $("#f-video").focus(), 60);
+}
+function fecharEnvio() {
+  $("#modal-envio").classList.remove("on");
+  document.body.style.overflow = "";
+  $("#form-envio").reset();
+  $("#f-autor").value = LS.nome;
+  $(".opcionais").open = false;
+  $("#previa").classList.remove("on");
+  limparMsg($("#msg-envio"));
+  capaCache = null;
+}
+$("#modal-envio").onclick = e => { if (e.target.id === "modal-envio") fecharEnvio(); };
 
 /* ---------- lightbox ---------- */
 function abrirFoto(src) { $("#lb-img").src = src; $("#lb").classList.add("on"); }
 $("#lb").onclick = e => { if (e.target.id !== "lb-img") $("#lb").classList.remove("on"); };
-document.addEventListener("keydown", e => { if (e.key === "Escape") $("#lb").classList.remove("on"); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if ($("#lb").classList.contains("on")) $("#lb").classList.remove("on");
+  else if ($("#modal-envio").classList.contains("on")) fecharEnvio();
+});
 
 /* ---------- carregar ---------- */
 async function carregar() {
@@ -390,7 +430,7 @@ function render() {
   $("#c-rank").textContent = comVoto.length ? "(" + comVoto.length + ")" : "";
 
   $("#quem").innerHTML = LS.nome
-    ? "Votando como <b>" + esc(LS.nome) + "</b>" + (LS.loja ? " · " + esc(LS.loja) : "") +
+    ? "Votando como <b>" + esc(LS.nome) + "</b>" +
       ' <button onclick="trocarNome()">trocar</button>'
     : '<button onclick="trocarNome()">Diga seu nome para poder votar</button>';
 
@@ -558,16 +598,18 @@ $("#form-envio").addEventListener("submit", async e => {
   e.preventDefault();
   const el = $("#msg-envio"), btn = $("#btn-enviar");
   const autor   = $("#f-autor").value.trim();
-  const loja    = $("#f-loja").value;
   const produto = $("#f-produto").value.trim();
   const video   = $("#f-video").value.trim();
   const desc    = $("#f-desc").value.trim();
   const file    = $("#f-foto").files[0];
 
   if (!autor || !produto) { msg(el, "Preencha seu nome e o nome do produto.", "erro"); return; }
-  if (!video && !file)    { msg(el, "Mande pelo menos uma coisa: o link do vídeo ou uma foto do produto.", "erro"); return; }
+  if (!video && !file) {
+    msg(el, "Cole o link do Instagram. Se você só tem uma foto, abra as opções ali embaixo e suba a foto.", "erro");
+    $(".opcionais").open = true; return;
+  }
   if (video && !shortcode(video) && !file) {
-    msg(el, "Esse link não parece ser de um post ou reel do Instagram. Confira, ou suba uma foto.", "erro"); return;
+    msg(el, "Esse link não parece ser de um post ou reel do Instagram. Confira, ou suba uma foto nas opções.", "erro"); return;
   }
 
   btn.disabled = true;
@@ -592,24 +634,17 @@ $("#form-envio").addEventListener("submit", async e => {
       foto = await subirFoto(file);
     }
 
-    LS.nome = autor; LS.loja = loja;
+    LS.nome = autor;
     await api("/rest/v1/sugestoes", {
       method: "POST",
       headers: { Prefer: "return=representation" },
-      body: JSON.stringify({ autor, loja: loja || null, produto, descricao: desc || null,
+      body: JSON.stringify({ autor, produto, descricao: desc || null,
                              video_url: video || null, foto_url: foto, ig_autor: igAutor }),
     });
 
-    $("#form-envio").reset();
-    $("#f-autor").value = LS.nome; $("#f-loja").value = LS.loja;
-    $("#previa").classList.remove("on"); capaCache = null;
-    limparMsg(el);
+    fecharEnvio();
     await carregar();
-    $$(".vtab").forEach(x => x.classList.remove("active"));
-    $$(".view").forEach(x => x.classList.remove("active"));
-    document.querySelector('[data-view="view-sugestoes"]').classList.add("active");
-    $("#view-sugestoes").classList.add("active");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    irPara("view-sugestoes");
   } catch (err) {
     msg(el, "Não deu para enviar: " + err.message, "erro");
   } finally {
@@ -632,7 +667,6 @@ $("#ord-btn").onclick = () => {
 
 /* ---------- boot ---------- */
 $("#f-autor").value = LS.nome;
-$("#f-loja").value  = LS.loja;
 carregar().catch(e => {
   $("#grid-sug").innerHTML = '<div class="vazio">Não consegui carregar as sugestões.<br>Confira sua internet e recarregue a página.</div>';
   console.error(e);
