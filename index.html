@@ -284,7 +284,7 @@
     <button class="fbtn" data-filtro="minhas">Que eu enviei</button>
     <button class="fbtn" data-filtro="semvoto">Sem voto ainda</button>
     <span class="sep"></span>
-    <button class="fbtn" data-ordem="recentes" id="ord-btn">↕ Mais recentes</button>
+    <button class="fbtn" data-ordem="lista" id="ord-btn">↕ Ordem da lista</button>
   </div>
   <div class="barra">
     <span class="quem" id="quem"></span>
@@ -334,7 +334,7 @@ const LS = {
   set loja(v) { localStorage.setItem("cv_loja", v); },
 };
 
-let SUGESTOES = [], VOTOS = [], filtro = "todas", ordem = "recentes";
+let SUGESTOES = [], VOTOS = [], filtro = "todas", ordem = "lista";
 
 /* ---------- helpers ---------- */
 const $  = s => document.querySelector(s);
@@ -374,7 +374,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") $("#lb").cla
 /* ---------- carregar ---------- */
 async function carregar() {
   const [s, v] = await Promise.all([
-    api("/rest/v1/sugestoes?select=*&arquivado=eq.false&order=criado_em.desc"),
+    api("/rest/v1/sugestoes?select=*&arquivado=eq.false&order=ordem.asc.nullslast,criado_em.desc"),
     api("/rest/v1/votos?select=*"),
   ]);
   SUGESTOES = s; VOTOS = v;
@@ -625,8 +625,8 @@ $$("[data-filtro]").forEach(b => b.onclick = () => {
   render();
 });
 $("#ord-btn").onclick = () => {
-  ordem = ordem === "recentes" ? "votados" : "recentes";
-  $("#ord-btn").textContent = ordem === "recentes" ? "↕ Mais recentes" : "↕ Mais votados";
+  ordem = ordem === "lista" ? "votados" : "lista";
+  $("#ord-btn").textContent = ordem === "lista" ? "↕ Ordem da lista" : "↕ Mais votados";
   render();
 };
 
