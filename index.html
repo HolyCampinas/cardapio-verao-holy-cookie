@@ -87,6 +87,13 @@
   .modalpe { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
   @media (max-width: 560px) { .modalcx { margin: 10px auto; padding: 20px 18px 22px; } .modalpe .btn { flex: 1; } }
 
+  .vidmodal { background: rgba(30,18,10,.88); }
+  .vidcx { max-width: 420px; margin: 12px auto; display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+  .vidcx .modalx { align-self: flex-end; color: #fff; font-size: 2.4rem; }
+  .vidcx iframe { width: 100%; height: 74vh; max-height: 700px; border: 0; border-radius: 12px; background: #fff; }
+  .vidcx .btn.sec { text-align: center; text-decoration: none; }
+  .vidnota { color: #e8dccc; font-size: .76rem; text-align: center; line-height: 1.45; }
+
   .aviso { border-radius: 10px; padding: 11px 15px; font-size: .88rem; font-weight: 600; display: none; }
   .aviso.on { display: block; }
   .aviso.erro { background: #fdecea; border: 1px solid #f5c6c0; color: #a8322a; }
@@ -108,7 +115,6 @@
   .card .capa { position: relative; background: #f5ebdf; aspect-ratio: 4 / 5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .card .capa img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; display: block; }
   .card .capa .semfoto { text-align: center; color: #a8907a; font-size: .84rem; padding: 20px; }
-  .card .capa iframe { width: 100%; height: 100%; border: 0; background: #fff; }
   .card .votobolha { position: absolute; top: 10px; right: 10px; background: rgba(46,125,50,.94); color: #fff; font-weight: 800; font-size: .8rem; padding: 4px 11px; border-radius: 999px; }
   .card .rank { position: absolute; top: 10px; left: 10px; background: rgba(107,63,29,.92); color: #fff; font-weight: 800; font-size: .8rem; padding: 4px 11px; border-radius: 999px; }
   .cardbody { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
@@ -117,7 +123,7 @@
   .cardbody .meta a { color: #1155cc; font-weight: 700; text-decoration: none; }
   .cardbody .desc { background: #fdf3e0; border-radius: 8px; padding: 8px 10px; font-size: .84rem; }
   .cardbody .acoes { margin-top: auto; display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; }
-  .abtn { flex: 1; min-width: 108px; border: 1px solid #e8dccc; background: #fff; color: #6b3f1d; border-radius: 999px; padding: 9px 10px; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; }
+  .abtn { flex: 1; min-width: 108px; border: 1px solid #e8dccc; background: #fff; color: #6b3f1d; border-radius: 999px; padding: 9px 10px; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; text-decoration: none; display: block; }
   .abtn:hover { background: #f5ebdf; }
   .abtn.voto { background: #f0f7f1; border-color: #cfe3d2; color: #2e7d32; }
   .abtn.voto.on { background: #2e7d32; border-color: #2e7d32; color: #fff; }
@@ -335,6 +341,17 @@
 
 <div class="lb" id="lb"><button class="fechar" id="lb-x">×</button><img id="lb-img" alt=""></div>
 
+<div class="modal vidmodal" id="modal-video">
+  <div class="vidcx">
+    <button class="modalx" onclick="fecharVideo()" aria-label="fechar">×</button>
+    <iframe id="vid-frame" src="about:blank" allowfullscreen allowtransparency="true"
+            title="vídeo no Instagram"></iframe>
+    <a class="btn sec" id="vid-link" href="#" target="_blank" rel="noopener">Não carregou? Abrir no Instagram ↗</a>
+    <p class="vidnota">O player vem do Instagram e às vezes demora ou não abre —
+      principalmente no navegador de dentro do WhatsApp. Se ficar em branco, use o botão acima.</p>
+  </div>
+</div>
+
 <script>
 const SB_URL  = "https://wjirwqgiuqjxxoriqddj.supabase.co";
 const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaXJ3cWdpdXFqeHhvcmlxZGRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1OTI1OTIsImV4cCI6MjEwMTE2ODU5Mn0.MnOlJ6_2rJzFY55gJKYmIxXagg4HAdUQfbVdjMbwlhs";
@@ -408,6 +425,7 @@ $("#lb").onclick = e => { if (e.target.id !== "lb-img") $("#lb").classList.remov
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
   if ($("#lb").classList.contains("on")) $("#lb").classList.remove("on");
+  else if ($("#modal-video").classList.contains("on")) fecharVideo();
   else if ($("#modal-envio").classList.contains("on")) fecharEnvio();
 });
 
@@ -477,7 +495,12 @@ function card(s, posicao) {
       (s.descricao ? '<div class="desc">' + esc(s.descricao) + "</div>" : "") +
       (nomes.length ? '<div class="votantes">👍 ' + esc(nomes.join(", ")) + "</div>" : "") +
       '<div class="acoes">' +
-        (code ? '<button class="abtn" onclick="verVideo(\'' + s.id + "','" + code + '\')">▶ ver o vídeo</button>' : "") +
+        (code
+          ? (s.embed_ok === false
+              ? '<a class="abtn" href="https://www.instagram.com/reel/' + code +
+                '/" target="_blank" rel="noopener">↗ ver no Instagram</a>'
+              : '<button class="abtn" onclick="verVideo(\'' + code + '\')">▶ ver o vídeo</button>')
+          : "") +
         '<button class="abtn voto' + (meu ? " on" : "") + '" onclick="votar(\'' + s.id + '\')">' +
           (meu ? "✅ Quero esse" : "Quero esse") + "</button>" +
         '<button class="abtn mini" title="trocar a foto do produto" onclick="trocarFoto(\'' + s.id + '\')">📷</button>' +
@@ -485,12 +508,21 @@ function card(s, posicao) {
     "</div></div>";
 }
 
-/* ---------- vídeo sob demanda ---------- */
-function verVideo(id, code) {
-  const el = document.getElementById("capa-" + id);
-  el.innerHTML = '<iframe src="https://www.instagram.com/reel/' + code +
-    '/embed/" allowtransparency="true" allowfullscreen></iframe>';
+/* ---------- vídeo sob demanda ----------
+   Em popup, não dentro do card: o embed do Instagram é bem mais alto que a
+   moldura 4:5 da capa e ficava cortado, principalmente no celular. */
+function verVideo(code) {
+  $("#vid-frame").src = "https://www.instagram.com/reel/" + code + "/embed/";
+  $("#vid-link").href = "https://www.instagram.com/reel/" + code + "/";
+  $("#modal-video").classList.add("on");
+  document.body.style.overflow = "hidden";
 }
+function fecharVideo() {
+  $("#modal-video").classList.remove("on");
+  $("#vid-frame").src = "about:blank";
+  document.body.style.overflow = "";
+}
+$("#modal-video").onclick = e => { if (e.target.id === "modal-video") fecharVideo(); };
 
 /* ---------- votar ---------- */
 async function votar(id) {
@@ -617,6 +649,7 @@ $("#form-envio").addEventListener("submit", async e => {
   try {
     let foto = capaCache && capaCache.foto_url ? capaCache.foto_url : null;
     let igAutor = capaCache ? capaCache.ig_autor : null;
+    let embedOk = capaCache && capaCache.embed_ok !== undefined ? capaCache.embed_ok : null;
 
     // Link colado e ainda não processado (ex.: colou e enviou rápido demais).
     if (video && !capaCache && shortcode(video)) {
@@ -625,6 +658,7 @@ $("#form-envio").addEventListener("submit", async e => {
         const r = await fetch(SB_URL + "/functions/v1/capa", { method: "POST", headers: H, body: JSON.stringify({ url: video }) });
         const d = await r.json();
         if (d.foto_url) { foto = d.foto_url; igAutor = d.ig_autor; }
+        if (d.embed_ok !== undefined) embedOk = d.embed_ok;
       } catch (_) { /* segue sem capa */ }
     }
 
@@ -639,7 +673,8 @@ $("#form-envio").addEventListener("submit", async e => {
       method: "POST",
       headers: { Prefer: "return=representation" },
       body: JSON.stringify({ autor, produto, descricao: desc || null,
-                             video_url: video || null, foto_url: foto, ig_autor: igAutor }),
+                             video_url: video || null, foto_url: foto,
+                             ig_autor: igAutor, embed_ok: embedOk }),
     });
 
     fecharEnvio();
